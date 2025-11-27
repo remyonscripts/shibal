@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification: 1 New Message</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Import Pixel Font */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+
+        :root {
+            --pink-light: #ffd6e0;
+            --pink-dark: #ffb7c5;
+            --blue-light: #cbf3f0;
+            --blue-dark: #aee1e1;
+            --bg-grid: #e5e7eb;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background-color: #f0f9ff;
+            /* Grid Pattern Background */
+            background-image: 
+                linear-gradient(rgba(186, 230, 253, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(186, 230, 253, 0.4) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            cursor: crosshair; /* Gaming feel cursor */
+        }
+
+        /* Retro Window Styling */
+        .retro-window {
+            background: #ffffff;
+            border: 4px solid #000;
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .title-bar {
+            background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 8px 12px;
+            border-bottom: 4px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: black;
+            font-weight: bold;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .window-content {
+            padding: 24px;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Retro Buttons */
+        .btn-retro {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            border: 3px solid #000;
+            background: var(--blue-light);
+            box-shadow: 4px 4px 0px #000;
+            transition: all 0.1s;
+            cursor: pointer;
+            padding: 10px 30px;
+            color: black;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .btn-retro:active {
+            top: 4px;
+            left: 4px;
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        .btn-retro:hover {
+            background: var(--blue-dark);
+        }
+
+        .btn-pink {
+            background: var(--pink-light);
+        }
+        .btn-pink:hover {
+            background: var(--pink-dark);
+        }
+
+        /* Typography Override */
+        h1, h2 {
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        /* Animations */
+        .slide-hidden {
+            display: none;
+        }
+
+        .slide-active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            animation: glitch-in 0.3s ease-out forwards;
+        }
+
+        @keyframes glitch-in {
+            0% { opacity: 0; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Polaroid / Tape Effect */
+        .photo-frame {
+            background: white;
+            border: 2px solid #000;
+            padding: 8px 8px 20px 8px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .tape {
+            background-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            position: absolute;
+            top: -10px;
+            left: 35%;
+            width: 30%;
+            height: 20px;
+            transform: rotate(-2deg);
+            border: 1px solid rgba(0,0,0,0.1);
+            z-index: 20;
+        }
+
+        /* Progress Bar Retro */
+        .loading-bar {
+            width: 100%;
+            height: 20px;
+            border: 2px solid #000;
+            padding: 2px;
+            margin-bottom: 20px;
+            display: flex;
+        }
+        .loading-fill {
+            height: 100%;
+            background: #000;
+            width: 20%;
+            transition: width 0.3s steps(4);
+        }
+
+        .img-placeholder img {
+            border: 2px solid #000;
+            image-rendering: pixelated;
+        }
+
+        .confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Letter Styling */
+        .letter-content {
+            font-family: 'Fredoka', sans-serif; /* More readable for the letter */
+            font-size: 1rem;
+            line-height: 1.5;
+            background: #fff;
+            border: 2px dashed #000;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-left: 2px solid #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border: 2px solid #000;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti" class="confetti-canvas"></canvas>
+
+    <!-- Retro Window Container -->
+    <div class="retro-window">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span><i class="fas fa-heart text-white mr-2"></i>HELL YEAH</span>
+            <div class="flex gap-2">
+                <div class="w-4 h-4 border-2 border-black bg-white flex items-center justify-center text-[10px] cursor-pointer hover:bg-gray-200">_</div>
+                <div class="w-4 h-4 border-2 border-black bg-red-400 flex items-center justify-center text-[10px] text-white cursor-pointer hover:bg-red-500">X</div>
+            </div>
+        </div>
+
+        <!-- Window Content -->
+        <div class="window-content relative">
+            
+            <!-- Loading Bar Indicator -->
+            <div class="loading-bar" id="progress-container">
+                <div class="loading-fill" id="progress-fill"></div>
+            </div>
+
+            <!-- Slide 1: Intro -->
+            <div id="slide-1" class="slide-active">
+                <div class="mb-6 w-full flex justify-center">
+                    <!-- GIF Image -->
+                    <img src="http://googleusercontent.com/image_collection/image_retrieval/13754539183056567756" 
+                         class="w-48 h-48 object-cover border-4 border-black shadow-[4px_4px_0px_#000]" 
+                         alt="Cute Cat">
+                </div>
+                
+                <h1 class="text-4xl text-center mb-2">ALOO MONKEE 🐒</h1>
+                <p class="text-xl text-gray-500 mb-8 text-center">> I made a little something for you...</p>
+                
+                <button onclick="nextSlide(2)" class="btn-retro">
+                    START GAME
+                </button>
+            </div>
+
+            <!-- Slide 2: Something to tell you -->
+            <div id="slide-2" class="slide-hidden text-center py-10">
+                <div class="text-6xl mb-6">🫣</div>
+                <h2 class="text-3xl mb-8">I got something to tell you...</h2>
+                
+                <div class="bg-yellow-100 border-2 border-black p-4 mb-8 transform -rotate-1 shadow-[4px_4px_0px_#000]">
+                    <p class="text-xl">⚠️ SYSTEM NOTICE:</p>
+                    <p class="text-lg">This boutta get crazy</p>
+                </div>
+
+                <button onclick="nextSlide(3)" class="btn-retro btn-pink">
+                    APA?
+                </button>
+            </div>
+
+            <!-- Slide 3: Gusto Kita -->
+            <div id="slide-3" class="slide-hidden text-center py-12">
+                <h1 class="text-6xl mb-12 text-pink-500 drop-shadow-[2px_2px_0px_#000]">GUSTO KITA</h1>
+                <button onclick="nextSlide(4)" class="btn-retro">
+                    TAP ME
+                </button>
+            </div>
+
+            <!-- Slide 4: Aku Suka Kamu -->
+            <div id="slide-4" class="slide-hidden text-center py-12">
+                <h1 class="text-6xl mb-12 text-blue-500 drop-shadow-[2px_2px_0px_#000]">AKU SUKA KAMU</h1>
+                <button onclick="nextSlide(5)" class="btn-retro btn-pink">
+                    TAP ME AGAIN
+                </button>
+            </div>
+
+            <!-- Slide 5: Letter & Photos -->
+            <div id="slide-5" class="slide-hidden">
+                <div class="text-center mb-4">
+                    <span class="bg-black text-white px-2 py-1 text-xl">MESSAGE.TXT</span>
+                </div>
+
+                <!-- Letter -->
+                <div class="letter-content mb-6 shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
+                    So… akhirnya I decided buat confess because what Bass translated, especially pas dia bilang, <span class="text-pink-500 font-bold">“I think you gotta do something about it, bro”</span>, terus kepikiran mulu HAHAHA. 
+                    <br><br>
+                    I’m super shy and timid, jadi confessing nggak gampang 😅. I’ve been giving hints, and kayaknya sih udah obvious… hahaha.
+                    <br><br>
+                    But yeah… I can’t help it. Aku mulai suka sama kamu, and honestly… it’s getting a little dangerous wkwk.
+                </div>
+
+                <!-- Polaroids Grid -->
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                    <!-- Photo 1 -->
+                    <div class="photo-frame transform -rotate-3">
+                        <div class="tape"></div>
+                        <img src="https://placehold.co/150x150/e0f2fe/bae6fd?text=Gameplay" class="w-full h-24 object-cover border border-gray-200">
+                    </div>
+                    <!-- Photo 2 -->
+                    <div class="photo-frame transform rotate-2 mt-4">
+                        <div class="tape"></div>
+                        <img src="https://placehold.co/150x150/ffe4e6/fda4af?text=Funny" class="w-full h-24 object-cover border border-gray-200">
+                    </div>
+                    <!-- Photo 3 -->
+                    <div class="photo-frame transform -rotate-1">
+                        <div class="tape"></div>
+                        <div class="w-full h-24 bg-gray-800 flex items-center justify-center text-white cursor-pointer hover:opacity-80">
+                            <i class="fas fa-play text-xl"></i>
+                        </div>
+                    </div>
+                    <!-- Photo 4 -->
+                    <div class="photo-frame transform rotate-3 mt-2">
+                        <div class="tape"></div>
+                        <img src="https://placehold.co/150x150/fef3c7/fcd34d?text=Us" class="w-full h-24 object-cover border border-gray-200">
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                     <button onclick="location.reload()" class="text-gray-400 hover:text-blue-500 underline text-lg">
+                        [ RESTART GAME ]
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Slide Navigation ---
+        function nextSlide(slideNumber) {
+            // Hide all slides
+            document.querySelectorAll('[id^="slide-"]').forEach(el => {
+                el.classList.remove('slide-active');
+                el.classList.add('slide-hidden');
+            });
+
+            // Show target slide
+            const target = document.getElementById(`slide-${slideNumber}`);
+            if(target) {
+                target.classList.remove('slide-hidden');
+                target.classList.add('slide-active');
+            }
+
+            // Update Loading Bar Retro Style
+            const fill = document.getElementById('progress-fill');
+            const totalSlides = 5;
+            let percentage = (slideNumber / totalSlides) * 100;
+            if (percentage > 100) percentage = 100;
+            fill.style.width = percentage + '%';
+
+            // Celebration on last slide
+            if(slideNumber === 5) {
+                startConfetti();
+            }
+        }
+
+        // --- Retro Confetti (Squares instead of circles) ---
+        function startConfetti() {
+            const canvas = document.getElementById("confetti");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#ff9a9e', '#93c5fd', '#a2d2ff', '#fde2e4'];
+
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    vx: Math.random() * 2 - 1,
+                    vy: Math.random() * 3 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 8 + 4
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, index) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    
+                    if (p.y > canvas.height) {
+                        p.y = -10;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    ctx.fillStyle = p.color;
+                    // Draw Squares for retro feel
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById("confetti");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+    </script>
+</body>
+</html>
